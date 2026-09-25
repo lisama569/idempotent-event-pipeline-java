@@ -4,6 +4,11 @@ target/
 !**/src/test/**/target/
 .kotlin
 
+### Local H2 database files ###
+/data/
+*.mv.db
+*.trace.db
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
