@@ -29,4 +29,7 @@ public interface EventStore {
 
     /** 查询死信，按 (partitionKey, sequence) 原顺序返回。 */
     List<StoredEvent> listDeadLetters();
+
+    /** 查询所有未走到终态（PENDING）的事件，用于重启后恢复调度。 */
+    List<StoredEvent> listPending();
 }

@@ -32,8 +32,11 @@ public class DeadLetterService {
         return store.listDeadLetters();
     }
 
-    /** 重放指定死信事件，返回重放后的判定。 */
-    public ProcessingOutcome replay(String eventId) {
+    /**
+     * 重放指定死信事件：重置为 PENDING（尝试次数清零）后重新走正常接收路径，
+     * 投递仍由后台推进，返回接收结论。
+     */
+    public ReceiveOutcome replay(String eventId) {
         EventStore.StoredEvent dead = store.find(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("unknown eventId: " + eventId));
         if (dead.status() != EventStore.EventStatus.DEAD) {
