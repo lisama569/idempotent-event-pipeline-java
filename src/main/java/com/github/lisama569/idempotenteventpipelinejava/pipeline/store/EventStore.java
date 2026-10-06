@@ -29,4 +29,10 @@ public interface EventStore {
 
     /** 查询死信，按 (partitionKey, sequence) 原顺序返回。 */
     List<StoredEvent> listDeadLetters();
+
+    /** 查询所有未完结（PENDING）事件，用于重启后的自动恢复推进。 */
+    List<StoredEvent> listPending();
+
+    /** 分区内序号最小的未完结（PENDING）事件，用于保序推进。 */
+    Optional<StoredEvent> nextPendingInPartition(String partitionKey);
 }

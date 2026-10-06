@@ -132,6 +132,36 @@ public class FileEventStore implements EventStore {
         }
     }
 
+    @Override
+    public List<StoredEvent> listPending() {
+        synchronized (lock) {
+            List<StoredEvent> pending = new ArrayList<>();
+            for (StoredEvent e : events.values()) {
+                if (e.status() == EventStatus.PENDING) {
+                    pending.add(e);
+                }
+            }
+            pending.sort(Comparator.comparing((StoredEvent e) -> e.envelope().partitionKey())
+                    .thenComparingLong(e -> e.envelope().sequence()));
+            return pending;
+        }
+    }
+
+    @Override
+    public Optional<StoredEvent> nextPendingInPartition(String partitionKey) {
+        synchronized (lock) {
+            StoredEvent best = null;
+            for (StoredEvent e : events.values()) {
+                if (e.status() == EventStatus.PENDING
+                        && e.envelope().partitionKey().equals(partitionKey)
+                        && (best == null || e.envelope().sequence() < best.envelope().sequence())) {
+                    best = e;
+                }
+            }
+            return Optional.ofNullable(best);
+        }
+    }
+
     /** 快照结构（Jackson 序列化用）。 */
     public static class Snapshot {
         public Map<String, StoredEvent> events;
